@@ -1,4 +1,4 @@
-# 📎 Clippy
+# 📎 Blepper
 
 **The AI cursor companion nobody asked for. But this time, it actually helps.**
 
@@ -18,7 +18,7 @@ cd packages/desktop && npm install && npm run electron:dev
 Side panel + page overlay. Load it unpacked in `chrome://extensions/` and go.
 
 ### 🌐 [Web Widget](packages/web-inject/) — Script Tag
-Drop a `<script>` tag on any page for an instant floating Clippy chat. No install.
+Drop a `<script>` tag on any page for an instant floating Blepper chat. No install.
 
 ---
 
@@ -34,7 +34,7 @@ Drop a `<script>` tag on any page for an instant floating Clippy chat. No instal
 ## How It Works
 
 1. You type a question
-2. Clippy screenshots your screen (or current tab)
+2. Blepper screenshots your screen (or current tab)
 3. Both are sent to your chosen LLM
 4. The AI responds, embedding annotation tags like `[POINT:450,200:This button]`
 5. The overlay renders an animated glowing cursor that flies to that spot
@@ -45,7 +45,7 @@ The AI can point at things (`[POINT]`), draw highlight boxes (`[HIGHLIGHT]`), dr
 
 | Buddy | Role |
 |-------|------|
-| 📎 **Clippy** | All-purpose companion |
+| 📎 **Blepper** | All-purpose companion |
 | 🔍 **Nitpick** | Code reviewer — direct, constructive, will roast bad code |
 | 🎨 **Pixel** | UI/UX design critic — cares about spacing, contrast, hierarchy |
 | 🎓 **Prof** | Patient tutor — points at everything, celebrates progress |

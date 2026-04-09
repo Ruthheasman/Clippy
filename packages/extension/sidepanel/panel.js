@@ -176,7 +176,7 @@ async function sendMessage() {
       params: {
         provider: state.provider,
         model: state.model,
-        messages: state.messages.map(m => ({ role: m.role, content: m.content })),
+        messages: state.messages.filter(m => m.role !== 'error').map(m => ({ role: m.role, content: m.content })),
         screenshot,
         buddyPrompt: buddy?.prompt || undefined,
       },

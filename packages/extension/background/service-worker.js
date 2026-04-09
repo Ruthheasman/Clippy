@@ -173,6 +173,7 @@ async function* claudeStream(model, messages, screenshot, apiKey, systemPrompt) 
       'Content-Type': 'application/json',
       'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({ model, max_tokens: 4096, system: systemPrompt, messages: apiMessages, stream: true }),
   });

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clippy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <button class="nav-btn active" data-panel="chat" title="Chat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </button>
+      <button class="nav-btn" data-panel="models" title="Models">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </button>
+      <button class="nav-btn" data-panel="keys" title="API Keys">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      </button>
+      <button class="nav-btn" data-panel="buddies" title="Buddies">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </button>
+      <div class="nav-spacer"></div>
+      <div id="buddy-indicator" class="buddy-icon" title="Active buddy">📎</div>
+    </nav>
+
+    <!-- Main content area -->
+    <main id="content">
+      <!-- Chat panel -->
+      <div id="panel-chat" class="panel active">
+        <div id="messages" class="messages">
+          <div class="empty-state">
+            <div class="empty-icon">📎</div>
+            <div class="empty-text">
+              It looks like you're browsing something.<br>
+              <span style="color:rgba(228,228,239,0.7)">Want help with that?</span>
+            </div>
+            <div class="empty-hint">I can see your current tab. Just ask.</div>
+          </div>
+        </div>
+        <div class="input-bar">
+          <button id="screenshot-toggle" class="icon-btn active" title="Screenshot: ON">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </button>
+          <textarea id="chat-input" placeholder="Ask me anything..." rows="1"></textarea>
+          <button id="send-btn" class="send-btn" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+        <div class="input-hints">
+          <span id="screenshot-status">📷 Screen visible</span>
+          <span>Shift+Enter for new line</span>
+        </div>
+      </div>
+
+      <!-- Models panel -->
+      <div id="panel-models" class="panel">
+        <div class="panel-header">
+          <h2>Provider</h2>
+          <p>Choose your LLM backend</p>
+        </div>
+        <div id="provider-list" class="card-list"></div>
+
+        <div class="panel-header" style="margin-top:16px">
+          <h2>Model</h2>
+        </div>
+        <div id="model-list" class="card-list"></div>
+      </div>
+
+      <!-- Keys panel -->
+      <div id="panel-keys" class="panel">
+        <div class="panel-header">
+          <h2>API Keys</h2>
+          <p>Encrypted locally. Never sent anywhere except the provider's API.</p>
+        </div>
+        <div id="keys-list"></div>
+      </div>
+
+      <!-- Buddies panel -->
+      <div id="panel-buddies" class="panel">
+        <div class="panel-header">
+          <h2>Buddies</h2>
+          <p>Different personalities with different skills.</p>
+        </div>
+        <div id="buddies-list" class="card-list"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="panel.js"></script>
+</body>
+</html>

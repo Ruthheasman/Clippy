@@ -112,25 +112,38 @@ async function handleChat(params) {
       systemPrompt, ollamaUrl, lmstudioUrl,
     });
 
-    let fullResponse = '';
+ let fullResponse = '';
     for await (const chunk of stream) {
       fullResponse += chunk;
-      // Send chunks to side panel
-      chrome.runtime.sendMessage({
+      const chunkMsg = {
         type: 'chat-chunk',
         text: chunk,
         done: false,
         fullText: fullResponse,
-      }).catch(() => { /* side panel may not be listening yet */ });
+      };
+      // Send to side panel
+      chrome.runtime.sendMessage(chunkMsg).catch(() => {});
+      // Send to active tab's content script for overlay
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]?.id) {
+          chrome.tabs.sendMessage(tabs[0].id, chunkMsg).catch(() => {});
+        }
+      });
     }
 
     // Signal done
-    chrome.runtime.sendMessage({
+    const doneMsg = {
       type: 'chat-chunk',
       text: '',
       done: true,
       fullText: fullResponse,
-    }).catch(() => {});
+    };
+    chrome.runtime.sendMessage(doneMsg).catch(() => {});
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id) {
+        chrome.tabs.sendMessage(tabs[0].id, doneMsg).catch(() => {});
+      }
+    });
 
     return { success: true };
   } catch (err) {

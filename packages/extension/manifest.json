@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Clippy — AI Screen Companion",
-  "version": "0.1.0",
-  "description": "An AI buddy that sees your screen, points at things, and actually helps. BYOK.",
+  "name": "Blepper — AI Screen Companion",
+  "version": "0.2.0",
+  "description": "A cheeky cat AI that sees your screen, points at things, and actually helps. BYOK.",
   "permissions": [
     "activeTab",
     "sidePanel",
@@ -13,8 +13,7 @@
     "<all_urls>"
   ],
   "background": {
-    "service_worker": "background/service-worker.js",
-    "type": "module"
+    "service_worker": "background/service-worker.js"
   },
   "side_panel": {
     "default_path": "sidepanel/index.html"
@@ -44,7 +43,11 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["content/overlay.css"],
+      "resources": [
+        "content/overlay.css",
+        "skills/*/skill.json",
+        "skills/*/*.md"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

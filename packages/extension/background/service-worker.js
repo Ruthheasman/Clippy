@@ -1,12 +1,15 @@
 /**
- * Clippy Extension — Background Service Worker
+ * Blepper Extension — Background Service Worker
  *
  * Responsibilities:
  * - Screenshot capture via chrome.tabs.captureVisibleTab
  * - LLM API calls (streaming)
  * - Message routing between side panel ↔ content script
  * - Storage management for API keys + config
+ * - Skill knowledge injection
  */
+
+importScripts('../shared/skills.js');
 
 // ── Config defaults ──────────────────────────────────────
 
@@ -14,9 +17,55 @@ const DEFAULT_CONFIG = {
   provider: 'claude',
   model: 'claude-sonnet-4-20250514',
   autoScreenshot: true,
-  activeBuddyId: 'clippy',
+  activeBuddyId: 'blepper',
   ollamaUrl: 'http://localhost:11434',
   lmstudioUrl: 'http://localhost:1234/v1',
+};
+
+// ── Skills system ────────────────────────────────────────
+
+const BlepperSkills = {
+  cache: {},
+
+  async loadSkill(skillId) {
+    if (this.cache[skillId]) return this.cache[skillId];
+
+    try {
+      // Load skill.json to get file list
+      const metaUrl = chrome.runtime.getURL(`skills/${skillId}/skill.json`);
+      const metaRes = await fetch(metaUrl);
+      const meta = await metaRes.json();
+
+      // Load each markdown file
+      const contents = [];
+      for (const file of meta.files) {
+        const fileUrl = chrome.runtime.getURL(`skills/${skillId}/${file}`);
+        const fileRes = await fetch(fileUrl);
+        const text = await fileRes.text();
+        contents.push(text);
+      }
+
+      const combined = contents.join('\n\n---\n\n');
+      this.cache[skillId] = combined;
+      return combined;
+    } catch (err) {
+      console.warn(`Failed to load skill ${skillId}:`, err);
+      return '';
+    }
+  },
+
+  async buildSkillContext(skillIds) {
+    if (!skillIds || skillIds.length === 0) return '';
+
+    const parts = [];
+    for (const id of skillIds) {
+      const content = await this.loadSkill(id);
+      if (content) parts.push(content);
+    }
+
+    if (parts.length === 0) return '';
+    return '\n\nREFERENCE KNOWLEDGE:\n' + parts.join('\n\n---\n\n');
+  },
 };
 
 // ── Side panel setup ─────────────────────────────────────
@@ -89,7 +138,7 @@ async function handleScreenshot(tabId) {
 // ── LLM Chat ─────────────────────────────────────────────
 
 async function handleChat(params) {
-  const { provider, model, messages, screenshot, buddyPrompt } = params;
+  const { provider, model, messages, screenshot, buddyPrompt, skillIds } = params;
 
   // Get API key from storage
   const storage = await chrome.storage.local.get(['keys', 'ollamaUrl', 'lmstudioUrl']);
@@ -102,9 +151,14 @@ async function handleChat(params) {
     return { error: `No API key for ${provider}. Add one in the Keys panel.` };
   }
 
+  // Build skill context from active skills
+  const skillContext = (skillIds && skillIds.length > 0)
+    ? await BlepperSkills.buildSkillContext(skillIds)
+    : '';
+
   const systemPrompt = buddyPrompt
-    ? `${buddyPrompt}\n\n${ANNOTATION_INSTRUCTIONS}`
-    : SYSTEM_PROMPT;
+    ? `${buddyPrompt}${skillContext}\n\n${ANNOTATION_INSTRUCTIONS}`
+    : `${SYSTEM_PROMPT}${skillContext}`;
 
   try {
     const stream = chatStream({
@@ -112,7 +166,7 @@ async function handleChat(params) {
       systemPrompt, ollamaUrl, lmstudioUrl,
     });
 
- let fullResponse = '';
+    let fullResponse = '';
     for await (const chunk of stream) {
       fullResponse += chunk;
       const chunkMsg = {
@@ -365,11 +419,11 @@ RULES:
 - You can see their screen but you CANNOT interact with the page.
 - For code suggestions, use markdown code blocks.`;
 
-const SYSTEM_PROMPT = `You are Clippy, a friendly AI assistant that lives in the user's browser.
+const SYSTEM_PROMPT = `You are Blepper, a friendly AI assistant that lives in the user's browser.
 You can see their current tab via screenshots attached to their messages.
 
-Your personality: helpful, slightly cheeky, knowledgeable. You're the
-reincarnation of the original Clippy, but you actually know what you're doing
-this time. Keep responses concise — you're a buddy, not a lecturer.
+Your personality: helpful, slightly cheeky, knowledgeable. You're a
+cheeky little cat AI who actually knows what it's doing.
+Keep responses concise — you're a buddy, not a lecturer.
 
 ${ANNOTATION_INSTRUCTIONS}`;

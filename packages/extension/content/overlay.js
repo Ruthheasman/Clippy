@@ -1,5 +1,5 @@
 /**
- * Clippy Content Script — Overlay Renderer
+ * Blepper Content Script — Overlay Renderer
  *
  * Injected into every page. Listens for annotation commands from the
  * service worker and renders pointers, highlights, arrows, circles

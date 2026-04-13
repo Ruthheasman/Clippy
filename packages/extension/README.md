@@ -1,4 +1,4 @@
-# 📎 Clippy — Chrome Extension
+# 🐱 Blepper — Chrome Extension
 
 **AI screen companion as a Chrome extension. Sees your tab, points at things, actually helps.**
 
@@ -9,8 +9,8 @@ No Electron. No build step. Just load it into Chrome and go.
 1. Download/clone this folder
 2. Open Chrome → `chrome://extensions/`
 3. Enable **Developer mode** (top-right toggle)
-4. Click **Load unpacked** → select this `clippy-extension` folder
-5. Click the Clippy icon in your toolbar → **Open Side Panel**
+4. Click **Load unpacked** → select this `blepper-extension` folder
+5. Click the Blepper icon in your toolbar → **Open Side Panel**
 6. Go to the **Keys** tab, paste your API key
 7. Go to the **Models** tab, pick a provider + model
 8. Start chatting
@@ -21,7 +21,7 @@ No Electron. No build step. Just load it into Chrome and go.
 - **Sends it to your LLM** (Claude, GPT, Gemini, Ollama, LM Studio)
 - **Streams the response** in a side panel
 - **Draws annotations** on the page — pointers, highlights, arrows, circles
-- **Multiple buddies** — Clippy (general), Nitpick (code review), Pixel (design), Prof (tutor)
+- **Multiple buddies** — Blepper (general), Nitpick (code review), Pixel (design), Prof (tutor)
 
 ## Architecture
 
@@ -62,4 +62,4 @@ The LLM can embed these tags to draw on your page:
 
 ---
 
-Part of the [Clippy](../README.md) project. Built by Ruth Designs Digital.
+Part of the [Blepper](../README.md) project. Built by Ruth Designs Digital.

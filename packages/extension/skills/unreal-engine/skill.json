@@ -1,0 +1,8 @@
+{
+  "id": "unreal-engine",
+  "name": "Unreal Engine 5",
+  "emoji": "🎮",
+  "description": "Blueprints, Materials, Niagara VFX — visual scripting patterns, node reference, and troubleshooting",
+  "files": ["blueprints.md", "materials.md", "niagara.md"],
+  "version": "1.0.0"
+}

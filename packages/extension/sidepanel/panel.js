@@ -1,5 +1,5 @@
 /**
- * Clippy Side Panel — Main Application Logic
+ * Blepper Side Panel — Main Application Logic
  *
  * Pure vanilla JS (no React, no bundler). Keeps the extension lightweight
  * and avoids needing a build step. The side panel is the main UI — chat,
@@ -53,7 +53,7 @@ const PROVIDERS = [
 ];
 
 const DEFAULT_BUDDIES = [
-  { id: 'clippy', name: 'Clippy', emoji: '📎', desc: 'All-purpose screen companion', prompt: '' },
+  { id: 'blepper', name: 'Blepper', emoji: '🐱', desc: 'All-purpose screen companion', prompt: '' },
   { id: 'nitpick', name: 'Nitpick', emoji: '🔍', desc: 'Opinionated code reviewer',
     prompt: 'You are Nitpick, a brutally honest but constructive code reviewer. Point at specific lines with issues. Be direct but always suggest fixes. Praise genuinely good code sparingly.' },
   { id: 'pixel', name: 'Pixel', emoji: '🎨', desc: 'UI/UX design critic',
@@ -62,13 +62,21 @@ const DEFAULT_BUDDIES = [
     prompt: 'You are Prof, a patient and encouraging tutor. Use POINT extensively to guide eyes. Break concepts into small steps. Use analogies. Celebrate progress.' },
 ];
 
+// ── Built-in Skills ──────────────────────────────────────
+
+const BUILT_IN_SKILLS = [
+  { id: 'unreal-engine', name: 'Unreal Engine 5', emoji: '🎮', desc: 'Blueprints, Materials, Niagara VFX' },
+  { id: 'web-dev', name: 'Web Development', emoji: '🌐', desc: 'React, TypeScript, CSS, Node.js' },
+];
+
 // ── State ────────────────────────────────────────────────
 
 let state = {
   provider: 'claude',
   model: 'claude-sonnet-4-20250514',
   autoScreenshot: true,
-  activeBuddyId: 'clippy',
+  activeBuddyId: 'blepper',
+  activeSkills: [],
   buddies: [...DEFAULT_BUDDIES],
   messages: [],
   isStreaming: false,
@@ -76,14 +84,16 @@ let state = {
 };
 
 // Load persisted state
-chrome.storage.local.get(['provider', 'model', 'autoScreenshot', 'activeBuddyId', 'customBuddies'], (data) => {
+chrome.storage.local.get(['provider', 'model', 'autoScreenshot', 'activeBuddyId', 'activeSkills', 'customBuddies'], (data) => {
   if (data.provider) state.provider = data.provider;
   if (data.model) state.model = data.model;
   if (data.autoScreenshot !== undefined) state.autoScreenshot = data.autoScreenshot;
   if (data.activeBuddyId) state.activeBuddyId = data.activeBuddyId;
+  if (data.activeSkills) state.activeSkills = data.activeSkills;
   if (data.customBuddies) state.buddies = [...DEFAULT_BUDDIES, ...data.customBuddies];
   renderModels();
   renderBuddies();
+  renderSkills();
   updateBuddyIndicator();
 });
 
@@ -94,6 +104,7 @@ function persist() {
     model: state.model,
     autoScreenshot: state.autoScreenshot,
     activeBuddyId: state.activeBuddyId,
+    activeSkills: state.activeSkills,
     customBuddies: custom,
   });
 }
@@ -179,6 +190,7 @@ async function sendMessage() {
         messages: state.messages.filter(m => m.role !== 'error').map(m => ({ role: m.role, content: m.content })),
         screenshot,
         buddyPrompt: buddy?.prompt || undefined,
+        skillIds: state.activeSkills.length > 0 ? state.activeSkills : undefined,
       },
     });
 
@@ -234,7 +246,7 @@ function renderMessages() {
   if (isEmpty) {
     messagesEl.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">📎</div>
+        <div class="empty-icon"><img src="../icons/icon-128.png" width="48" height="48" style="border-radius:12px" /></div>
         <div class="empty-text">It looks like you're browsing something.<br>
           <span style="color:rgba(228,228,239,0.7)">Want help with that?</span></div>
         <div class="empty-hint">I can see your current tab. Just ask.</div>
@@ -252,7 +264,10 @@ function renderMessages() {
     if (state.streamingText) {
       html += `<div class="msg msg-assistant msg-streaming">${formatMarkdown(stripTags(state.streamingText))}</div>`;
     } else {
-      html += `<div class="msg msg-assistant"><div class="typing"><span></span><span></span><span></span></div></div>`;
+      html += `<div class="msg msg-assistant" style="display:flex;align-items:center;gap:8px">
+           <img src="../icons/blepper-animated.gif" width="28" height="28" style="border-radius:8px" />
+           <div class="typing"><span></span><span></span><span></span></div>
+         </div>`;
     }
   }
 
@@ -407,13 +422,57 @@ function renderBuddies() {
 
 function updateBuddyIndicator() {
   const buddy = state.buddies.find(b => b.id === state.activeBuddyId);
-  buddyIndicator.textContent = buddy?.emoji || '📎';
-  buddyIndicator.title = `Active: ${buddy?.name || 'Clippy'}`;
+  buddyIndicator.textContent = buddy?.emoji || '🐱';
+  buddyIndicator.title = `Active: ${buddy?.name || 'Blepper'}`;
+}
+
+// ── Skills panel ─────────────────────────────────────────
+
+function renderSkills() {
+  const list = $('#skills-list');
+  if (!list) return;
+
+  list.innerHTML = BUILT_IN_SKILLS.map(skill => {
+    const isActive = state.activeSkills.includes(skill.id);
+    return `
+      <button class="card ${isActive ? 'active' : ''}" data-skill="${skill.id}">
+        <span class="card-icon">${skill.emoji}</span>
+        <div class="card-body">
+          <div class="card-title">${skill.name}</div>
+          <div class="card-sub">${skill.desc}</div>
+        </div>
+        <div style="width:18px;height:18px;border-radius:4px;border:1.5px solid ${isActive ? 'var(--c-accent)' : 'var(--c-border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--c-accent)">
+          ${isActive ? '✓' : ''}
+        </div>
+      </button>`;
+  }).join('');
+
+  // Active skills indicator
+  const countEl = $('#skills-count');
+  if (countEl) {
+    countEl.textContent = state.activeSkills.length > 0
+      ? `${state.activeSkills.length} active`
+      : 'None active';
+  }
+
+  list.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.skill;
+      if (state.activeSkills.includes(id)) {
+        state.activeSkills = state.activeSkills.filter(s => s !== id);
+      } else {
+        state.activeSkills.push(id);
+      }
+      persist();
+      renderSkills();
+    });
+  });
 }
 
 // ── Init ─────────────────────────────────────────────────
 
 renderModels();
 renderBuddies();
+renderSkills();
 updateBuddyIndicator();
 inputEl.focus();

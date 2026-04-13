@@ -8,14 +8,14 @@ An AI buddy that sees your screen, chats with you, and points at things while ex
 
 ## Three Ways to Run It
 
+### 🧩 [Chrome Extension](packages/extension/) — Zero Build Step
+Side panel + page overlay. Load it unpacked in `chrome://extensions/` and go.
+
 ### 🖥️ [Desktop App](packages/desktop/) — Electron
 Full-featured desktop companion with transparent overlay, global hotkey, encrypted key storage.
 ```bash
 cd packages/desktop && npm install && npm run electron:dev
 ```
-
-### 🧩 [Chrome Extension](packages/extension/) — Zero Build Step
-Side panel + page overlay. Load it unpacked in `chrome://extensions/` and go.
 
 ### 🌐 [Web Widget](packages/web-inject/) — Script Tag
 Drop a `<script>` tag on any page for an instant floating Blepper chat. No install.

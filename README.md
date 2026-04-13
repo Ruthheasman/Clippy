@@ -1,4 +1,4 @@
-# 📎 Blepper
+# 📎😺 Blepper
 
 **The AI cursor companion nobody asked for. But this time, it actually helps.**
 
